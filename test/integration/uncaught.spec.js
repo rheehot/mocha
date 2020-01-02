@@ -3,6 +3,7 @@
 var assert = require('assert');
 var helpers = require('./helpers');
 var run = helpers.runMochaJSON;
+var runMocha = helpers.runMocha;
 var args = [];
 
 describe('uncaught exceptions', function() {
@@ -98,6 +99,28 @@ describe('uncaught exceptions', function() {
 
       done();
     });
+  });
+
+  it("handles uncaught exceptions after runner's end", function(done) {
+    runMocha(
+      'uncaught/after-runner.fixture.js',
+      args,
+      function(err, res) {
+        if (err) {
+          return done(err);
+        }
+
+        expect(res, 'to have failed').and('to satisfy', {
+          failing: 0,
+          passing: 1,
+          pending: 0,
+          output: expect.it('to contain', 'Error: Unexpected crash')
+        });
+
+        done();
+      },
+      'pipe'
+    );
   });
 
   it('issue-1327: should run the first test and then bail', function(done) {
