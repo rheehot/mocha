@@ -1,12 +1,13 @@
 'use strict';
 
 var assert = require('assert');
-var run = require('./helpers').runMochaJSON;
+var helpers = require('./helpers');
+var run = helpers.runMochaJSON;
 var args = [];
 
 describe('uncaught exceptions', function() {
   it('handles uncaught exceptions from hooks', function(done) {
-    run('uncaught-hook.fixture.js', args, function(err, res) {
+    run('uncaught/hook.fixture.js', args, function(err, res) {
       if (err) {
         done(err);
         return;
@@ -25,7 +26,7 @@ describe('uncaught exceptions', function() {
   });
 
   it('handles uncaught exceptions from async specs', function(done) {
-    run('uncaught.fixture.js', args, function(err, res) {
+    run('uncaught/double.fixture.js', args, function(err, res) {
       if (err) {
         done(err);
         return;
@@ -48,7 +49,7 @@ describe('uncaught exceptions', function() {
   });
 
   it('handles uncaught exceptions from which Mocha cannot recover', function(done) {
-    run('uncaught-fatal.fixture.js', args, function(err, res) {
+    run('uncaught/fatal.fixture.js', args, function(err, res) {
       if (err) {
         return done(err);
       }
@@ -65,7 +66,7 @@ describe('uncaught exceptions', function() {
   });
 
   it('handles uncaught exceptions within pending tests', function(done) {
-    run('uncaught-pending.fixture.js', args, function(err, res) {
+    run('uncaught/pending.fixture.js', args, function(err, res) {
       if (err) {
         return done(err);
       }
@@ -95,6 +96,37 @@ describe('uncaught exceptions', function() {
 
       expect(res, 'to have passed').and('to have passed test count', 0);
 
+      done();
+    });
+  });
+
+  it('issue-1327: should run the first test and then bail', function(done) {
+    run('uncaught/issue-1327.fixture.js', args, function(err, res) {
+      if (err) {
+        return done(err);
+      }
+      expect(res, 'to have failed')
+        .and('to have passed test count', 1)
+        .and('to have failed test count', 1)
+        .and('to have passed test', 'test 1')
+        .and('to have failed test', 'test 1');
+      done();
+    });
+  });
+
+  it('issue-1417: uncaught exceptions from async specs', function(done) {
+    run('uncaught/issue-1417.fixture.js', args, function(err, res) {
+      if (err) {
+        return done(err);
+      }
+      expect(res, 'to have failed with errors', 'sync error a', 'sync error b')
+        .and('to have exit code', 2)
+        .and('not to have passed tests')
+        .and('not to have pending tests')
+        .and('to have failed test order', [
+          'fails exactly once when a global error is thrown synchronously and done errors',
+          'fails exactly once when a global error is thrown synchronously and done completes'
+        ]);
       done();
     });
   });
