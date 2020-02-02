@@ -24,7 +24,6 @@ Mocha is a feature-rich JavaScript test framework running on [Node.js][] and in 
 - [javascript API for running tests](#more-information)
 - proper exit status for CI support etc
 - [auto-detects and disables coloring for non-ttys](#reporters)
-- [maps uncaught exceptions to the correct test case](#browser-specific-methods)
 - [async test timeout support](#delayed-root-suite)
 - [test retry support](#retry-tests)
 - [test-specific timeouts](#test-level)
@@ -739,7 +738,7 @@ $ mocha
 
 <h2 id="test-duration">Test duration</h2>
 
-Many reporters will display test duration and flag tests that are slow (default: 75ms), as shown here with the "spec" reporter:
+Many reporters will display test duration and flag tests that are slow (default: 75ms), as shown here with the SPEC reporter:
 
 ![test duration](images/reporter-spec-duration.png?withoutEnlargement&resize=920,9999){:class="screenshot" lazyload="on"}
 
@@ -813,7 +812,7 @@ Again, use `this.timeout(0)` to disable the timeout for a hook.
 
 ## Diffs
 
-Mocha supports the `err.expected` and `err.actual` properties of any thrown `AssertionError`s from an assertion library. Mocha will attempt to display the difference between what was expected, and what the assertion actually saw. Here's an example of a "string" diff:
+Mocha supports the `err.expected` and `err.actual` properties of any thrown `AssertionError`s from an assertion library. Mocha will attempt to display the difference between what was expected, and what the assertion actually saw. Here's an example of a "string" diff using `--inline-diffs`:
 
 ![string diffs](images/reporter-string-diffs.png?withoutEnlargement&resize=920,9999){:class="screenshot" lazyload="on"}
 
@@ -1543,12 +1542,6 @@ Alias: `HTML`, `html`
 
 Mocha runs in the browser. Every release of Mocha will have new builds of `./mocha.js` and `./mocha.css` for use in the browser.
 
-### Browser-specific methods
-
-The following method(s) _only_ function in a browser context:
-
-`mocha.allowUncaught()` : If called, uncaught errors will not be absorbed by the error handler.
-
 A typical setup might look something like the following, where we call `mocha.setup('bdd')` to use the **BDD** interface before loading the test scripts, running them `onload` with `mocha.run()`.
 
 ```html
@@ -1600,9 +1593,10 @@ mocha.setup({
 
 // Use "tdd" interface, check global leaks, and force all tests to be asynchronous
 mocha.setup({
-  ui: 'tdd',
+  allowUncaught: true,
+  asyncOnly: true,
   checkLeaks: true,
-  asyncOnly: true
+  ui: 'tdd'
 });
 ```
 
@@ -1623,7 +1617,7 @@ If set to `true`, do not attempt to use syntax highlighting on output test code.
 
 ### Reporting
 
-The "html" reporter is the default reporter when running Mocha in the browser. It looks like this:
+The HTML reporter is the default reporter when running Mocha in the browser. It looks like this:
 
 ![HTML test reporter](images/reporter-html.png?withoutEnlargement&resize=920,9999){:class="screenshot" lazyload="on"}
 
